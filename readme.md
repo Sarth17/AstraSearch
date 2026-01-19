@@ -86,16 +86,15 @@ venv\Scripts\activate
 ```
 
 ### 2. Install dependencies
-
-pip install -r requirements.txt
 ```bash
-### 3. Indexing Real Data
+pip install -r requirements.txt
 ```
+### 3. Indexing Real Data
 
 Download a Wikipedia dump (recommended: Simple English Wikipedia):
-```bash
+
 https://dumps.wikimedia.org/simplewiki/
-```
+
 Extract the file and place it here:
 ```bash
 data/raw/simplewiki.xml
