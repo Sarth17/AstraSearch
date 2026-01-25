@@ -31,3 +31,6 @@ if not SIMPLEWIKI_XML.exists():
         "Download from https://dumps.wikimedia.org/simplewiki/\n"
         "and rename it to simplewiki.xml"
     )
+
+
+RANKER = "bm25"  # options: "tfidf", "bm25"

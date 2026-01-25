@@ -18,6 +18,8 @@ logger = get_logger(__name__)
 
 
 def main():
+    doc_lengths = {}
+    total_length = 0
     index = InvertedIndex()
     doc_store = DocumentStore()
     total_docs = 0
@@ -40,14 +42,27 @@ def main():
         if total_docs % 1000 == 0:
             logger.info(f"Indexed {total_docs} documents")
 
+        doc_len = len(tokens)
+        doc_lengths[doc_id] = doc_len
+        total_length += doc_len
+    
+
     # Write index to disk
     write_index(index, INVERTED_INDEX_PATH)
     doc_store.save(DOCUMENT_STORE_PATH)
 
     # Write metadata
-    metadata = {"total_docs": total_docs}
+    avg_doc_length = total_length / total_docs if total_docs else 0
+
+    metadata = {
+        "total_docs": total_docs,
+        "avg_doc_length": avg_doc_length,
+        "doc_lengths": doc_lengths
+    }
+
     with open(METADATA_PATH, "w") as f:
         json.dump(metadata, f)
+    
 
     logger.info("Indexing completed successfully")
     logger.info(f"Total documents indexed: {total_docs}")
