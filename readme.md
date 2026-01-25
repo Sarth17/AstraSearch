@@ -15,7 +15,7 @@ This project is designed for **learning, experimentation, and real-world system 
 - 🧠 Inverted index with term frequencies
 - 💾 Disk persistence (index + metadata)
 - 🔍 Query parsing & search engine
-- 📊 TF-IDF ranking
+- 📊 BM25 ranking (in v0.1.0 TF-IDF ranking)
 - 🧪 Pytest-based test suite
 - ⚙️ Config-driven architecture
 - 🪵 Centralized logging system
@@ -25,7 +25,7 @@ This project is designed for **learning, experimentation, and real-world system 
 
 ## 🏗️ Architecture Overview
 
-
+```bash
 Documents
 ↓
 Parser
@@ -42,19 +42,19 @@ Index Reader
 ↓
 Query Parser
 ↓
-Ranking (TF-IDF)
+Ranking (BM25)
 ↓
 Search Engine
 ↓
 Results
-
+```
 
 Each component is **independent, testable, and replaceable**, making the system easy to extend with new ranking models, storage backends, or APIs.
 
 ---
 
 ## 📁 Project Structure
-
+```bash
 ├── src/
 │ ├── parser/
 │ ├── preprocessing/
@@ -71,7 +71,7 @@ Each component is **independent, testable, and replaceable**, making the system 
 ├── logs/ # ignored (runtime logs)
 ├── requirements.txt
 └── README.md
-
+```
 
 ---
 
@@ -105,11 +105,12 @@ data/raw/simplewiki.xml
 python -m scripts.build_index
 ```
 this generates:
-
+```bash
 data/index/
 ├── inverted_index.json
 ├── documents.json
 └── metadata.json
+```
 
 ### 5. Searching
 
