@@ -15,6 +15,7 @@ INDEX_DIR.mkdir(parents=True, exist_ok=True)
 INVERTED_INDEX_PATH = INDEX_DIR / "inverted_index.json"
 DOCUMENT_STORE_PATH = INDEX_DIR / "documents.json"
 METADATA_PATH = INDEX_DIR / "metadata.json"
+TITLE_INDEX_PATH = INDEX_DIR / "title_index.json"
 
 # Logging
 LOG_DIR = PROJECT_ROOT / "logs"
@@ -32,5 +33,8 @@ if not SIMPLEWIKI_XML.exists():
         "and rename it to simplewiki.xml"
     )
 
-
+# ranker preference
 RANKER = "bm25"  # options: "tfidf", "bm25"
+
+#param for title weighting
+TITLE_BOOST = 3.0

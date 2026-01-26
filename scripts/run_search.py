@@ -28,7 +28,8 @@ def main():
         results = engine.search(query)
 
         for doc_id, title, score in results:
-            print(f"{title} ({score})")
+            print(f"{doc_id} | {title} | {score}")
+
 
 
 if __name__ == "__main__":

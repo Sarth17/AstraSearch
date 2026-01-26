@@ -6,6 +6,7 @@ from src.storage.document_store import DocumentStore
 from src.ranking.tfidf import TFIDFRanker
 from src.ranking.bm25 import BM25Ranker
 from src.utils.config import METADATA_PATH, RANKER
+from src.utils.config import METADATA_PATH, RANKER, TITLE_INDEX_PATH
 
 
 class SearchEngine:
@@ -13,6 +14,7 @@ class SearchEngine:
         self.index_reader = IndexReader(index_path)
         self.doc_store = DocumentStore()
         self.doc_store.load(doc_store_path)
+        self.title_index_reader = IndexReader(TITLE_INDEX_PATH)
 
         # load metadata
         with open(METADATA_PATH, "r") as f:
@@ -20,7 +22,12 @@ class SearchEngine:
 
         # choose ranker
         if RANKER == "bm25":
-            self.ranker = BM25Ranker(self.index_reader, metadata)
+            self.ranker = BM25Ranker(
+                                    body_index = self.index_reader,
+                                    title_index = self.title_index_reader,
+                                    metadata = metadata
+                                    )
+
         else:
             self.ranker = TFIDFRanker(self.index_reader, metadata["total_docs"])
 

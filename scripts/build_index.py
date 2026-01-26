@@ -13,6 +13,8 @@ from src.utils.config import (
     METADATA_PATH
 )
 from src.utils.logger import get_logger
+from src.utils.config import TITLE_INDEX_PATH
+
 
 logger = get_logger(__name__)
 
@@ -23,6 +25,8 @@ def main():
     index = InvertedIndex()
     doc_store = DocumentStore()
     total_docs = 0
+    title_index = InvertedIndex()
+
 
     xml_path = SIMPLEWIKI_XML
 
@@ -45,11 +49,22 @@ def main():
         doc_len = len(tokens)
         doc_lengths[doc_id] = doc_len
         total_length += doc_len
-    
+
+        #for title weighting
+        title_clean = clean_wiki_text(title)
+        title_tokens = tokenize(title_clean)
+
+        if title_tokens:
+            title_index.add_document(doc_id, title_tokens)
+
 
     # Write index to disk
     write_index(index, INVERTED_INDEX_PATH)
     doc_store.save(DOCUMENT_STORE_PATH)
+
+    #write title to disk
+    write_index(title_index, TITLE_INDEX_PATH)
+
 
     # Write metadata
     avg_doc_length = total_length / total_docs if total_docs else 0

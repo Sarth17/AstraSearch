@@ -141,5 +141,10 @@ logs are written to:
 logs/app.log
 ```
 
+## Evaluation
+- MAP: 0.76
+- NDCG@10: 0.88
+
+
 ## 📜 License
 MIT License
