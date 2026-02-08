@@ -8,4 +8,6 @@
 
 # External libraries (only what we actually use)
 lxml>=4.9.0
-
+fastapi
+uvicorn
+pydantic
