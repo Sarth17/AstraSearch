@@ -20,10 +20,23 @@ def search(
 
     results = engine.search(params.q, params.k)
 
-    response_results = [
-        SearchResult(doc_id=d, title=t, score=s)
-        for d, t, s in results
-    ]
+    response_results = []
+
+    for doc_id, _, score in results:
+
+        doc = engine.doc_store.get(doc_id)
+
+        if not doc:
+            continue
+
+        response_results.append(
+            SearchResult(
+                doc_id=doc_id,
+                title=doc["title"],
+                url=doc["url"],
+                score=score
+            )
+        )
 
     return SearchResponse(
         query=params.q,

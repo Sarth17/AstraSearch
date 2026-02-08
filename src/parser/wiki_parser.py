@@ -8,11 +8,11 @@ def strip_ns(tag):
 
 def parse_wikipedia_dump(xml_path):
     """
-    Yields (doc_id, title, raw_text)
+    Yields (doc_id, title, raw_text, url)
     """
 
     context = ET.iterparse(xml_path, events=("end",))
-
+    
     for event, elem in context:
         if strip_ns(elem.tag) != "page":
             continue
@@ -38,7 +38,10 @@ def parse_wikipedia_dump(xml_path):
                     if strip_ns(rev_child.tag) == "text":
                         raw_text = rev_child.text or ""
 
+                        
+        url = f"https://simple.wikipedia.org/wiki/{title.replace(' ', '_')}"
+
         if doc_id != -1:
-            yield doc_id, title, raw_text
+            yield doc_id, title, raw_text, url
 
         elem.clear()

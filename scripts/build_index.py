@@ -32,7 +32,7 @@ def main():
 
     logger.info("Starting indexing process")
 
-    for doc_id, title, raw_text in parse_wikipedia_dump(xml_path):
+    for doc_id, title, raw_text, url in parse_wikipedia_dump(xml_path):
         clean_text = clean_wiki_text(raw_text)
         tokens = tokenize(clean_text)
 
@@ -40,7 +40,7 @@ def main():
             continue
 
         index.add_document(doc_id, tokens)
-        doc_store.add(doc_id, title)
+        doc_store.add(doc_id, title, url)
         total_docs += 1
 
         if total_docs % 1000 == 0:

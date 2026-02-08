@@ -5,11 +5,14 @@ class DocumentStore:
     def __init__(self):
         self.docs = {}
 
-    def add(self, doc_id, title):
-        self.docs[str(doc_id)] = title
-
+    def add(self, doc_id, title, url):
+        self.docs[str(doc_id)] = {
+            "title": title,
+            "url": url
+        }
+    
     def get(self, doc_id):
-        return self.docs.get(str(doc_id), "")
+        return self.docs.get(str(doc_id))
 
     def save(self, path):
         with open(path, "w", encoding="utf-8") as f:

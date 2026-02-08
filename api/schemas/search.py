@@ -6,8 +6,9 @@ class SearchRequest(BaseModel):
     k: int = Field(10, ge=1, le=100, description="Number of results")
 
 class SearchResult(BaseModel):
-    title: str
     doc_id: int
+    title: str
+    url: str
     score: float
 
 class SearchResponse(BaseModel):
