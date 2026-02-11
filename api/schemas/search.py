@@ -10,6 +10,7 @@ class SearchResult(BaseModel):
     title: str
     url: str
     score: float
+    snippet: str
 
 class SearchResponse(BaseModel):
     query: str

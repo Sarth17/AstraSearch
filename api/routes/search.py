@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 import time
+from src.utils.snippet import generate_snippet
 
 from api.deps import get_engine
 from api.schemas.search import SearchRequest, SearchResponse, SearchResult
@@ -29,14 +30,16 @@ def search(
         if not doc:
             continue
 
+        snippet = generate_snippet(doc["text"], params.q)    
         response_results.append(
-            SearchResult(
-                doc_id=doc_id,
-                title=doc["title"],
-                url=doc["url"],
-                score=score
+                SearchResult(
+                    doc_id=doc_id,
+                    title=doc["title"],
+                    url=doc["url"],
+                    snippet=snippet,
+                    score=score
+                )
             )
-        )
 
     return SearchResponse(
         query=params.q,

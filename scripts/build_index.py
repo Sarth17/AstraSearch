@@ -1,46 +1,77 @@
+import argparse
 import json
-from src.utils.config import SIMPLEWIKI_XML
-from src.parser.wiki_parser import parse_wikipedia_dump
+
+from src.parser.factory import get_parser, detect_parser
+from src.parser.factory import get_parser
 from src.preprocessing.cleaner import clean_wiki_text
 from src.preprocessing.tokenizer import tokenize
 from src.indexer.inverted_index import InvertedIndex
 from src.indexer.index_writer import write_index
 from src.storage.document_store import DocumentStore
 from src.utils.config import (
-    RAW_DATA_DIR,
     INVERTED_INDEX_PATH,
     DOCUMENT_STORE_PATH,
-    METADATA_PATH
+    METADATA_PATH,
+    TITLE_INDEX_PATH
 )
 from src.utils.logger import get_logger
-from src.utils.config import TITLE_INDEX_PATH
 
 
 logger = get_logger(__name__)
 
 
 def main():
+
+    parser = argparse.ArgumentParser(description="Build AstraSearch Index")
+
+    parser.add_argument(
+        "--parser",
+        type=str,
+        required=False,
+        help="Parser type (optional: auto-detected if not provided)"
+    )
+
+    parser.add_argument(
+        "--source",
+        type=str,
+        required=True,
+        help="Path to dataset (file or folder)"
+    )
+
+
+    args = parser.parse_args()
+
+    source_path = args.source
+
+    if args.parser:
+        parser_type = args.parser
+    else:
+        parser_type = detect_parser(source_path)
+
+    logger.info(f"Using parser type: {parser_type}")
+
+
     doc_lengths = {}
     total_length = 0
-    index = InvertedIndex()
-    doc_store = DocumentStore()
     total_docs = 0
+
+    index = InvertedIndex()
     title_index = InvertedIndex()
+    doc_store = DocumentStore()
 
+    # Get appropriate parser dynamically
+    data_parser = get_parser(parser_type)
 
-    xml_path = SIMPLEWIKI_XML
+    for doc_id, title, text, url in data_parser.parse(source_path):
 
-    logger.info("Starting indexing process")
-
-    for doc_id, title, raw_text, url in parse_wikipedia_dump(xml_path):
-        clean_text = clean_wiki_text(raw_text)
-        tokens = tokenize(clean_text)
+        tokens = tokenize(text)
 
         if not tokens:
             continue
 
         index.add_document(doc_id, tokens)
-        doc_store.add(doc_id, title, url)
+        doc_store.add(doc_id, title, url, text)
+
         total_docs += 1
 
         if total_docs % 1000 == 0:
@@ -50,23 +81,18 @@ def main():
         doc_lengths[doc_id] = doc_len
         total_length += doc_len
 
-        #for title weighting
-        title_clean = clean_wiki_text(title)
-        title_tokens = tokenize(title_clean)
+        # Title weighting index
+        title_tokens = tokenize(title)
 
         if title_tokens:
             title_index.add_document(doc_id, title_tokens)
 
-
-    # Write index to disk
+    # Write indexes to disk
     write_index(index, INVERTED_INDEX_PATH)
-    doc_store.save(DOCUMENT_STORE_PATH)
-
-    #write title to disk
     write_index(title_index, TITLE_INDEX_PATH)
 
+    doc_store.save(DOCUMENT_STORE_PATH)
 
-    # Write metadata
     avg_doc_length = total_length / total_docs if total_docs else 0
 
     metadata = {
@@ -77,12 +103,9 @@ def main():
 
     with open(METADATA_PATH, "w") as f:
         json.dump(metadata, f)
-    
 
     logger.info("Indexing completed successfully")
     logger.info(f"Total documents indexed: {total_docs}")
-    print("XML path:", xml_path)
-    print("Exists:", xml_path.exists())
 
 
 if __name__ == "__main__":

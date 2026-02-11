@@ -56,10 +56,15 @@ function showResults(data) {
                 <a href="${link}" target="_blank">${r.title}</a>
             </div>
 
+            <div class="snippet">
+                ${r.snippet}
+            </div>
+
             <div class="score">
                 <span class="doc-id">ID: ${r.doc_id}</span> | Score: ${r.score}
             </div>
         `;
+
 
         resultsDiv.appendChild(div);
     });
