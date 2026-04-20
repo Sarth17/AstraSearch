@@ -1,52 +1,85 @@
 # 🚀 AstraSearch
 
-**AstraSearch** is a modular, scalable search engine framework built from scratch in Python.  
-It implements core information-retrieval concepts used in production systems such as Lucene and Elasticsearch, with a strong focus on clean architecture, correctness, and extensibility.
+**AstraSearch** is a hybrid search engine built from scratch in Python that combines classical information retrieval (BM25) with modern semantic search using transformer-based embeddings.
 
-This project is designed for **learning, experimentation, and real-world system design**, not as a toy demo.
+It is designed as a **modular, extensible, and production-inspired system** to demonstrate how real-world search engines work internally.
 
 ---
 
 ## ✨ Features
 
-- 🔄 Streaming XML parser (handles large dumps safely)
-- 🧹 Text cleaning & normalization pipeline
-- 🔤 Tokenizer with stopword removal
-- 🧠 Inverted index with term frequencies
-- 💾 Disk persistence (index + metadata)
-- 🔍 Query parsing & search engine
-- 📊 BM25 ranking (in v0.1.0 TF-IDF ranking)
-- 🧪 Pytest-based test suite
-- ⚙️ Config-driven architecture
-- 🪵 Centralized logging system
-- 🖥️ CLI search interface
+### 🔍 Core Search
+- BM25 ranking (primary retrieval)
+- Inverted index with term frequencies
+- Title-aware ranking (separate title index)
+
+### 🧠 Semantic Search
+- Transformer-based embeddings (`all-MiniLM-L6-v2`)
+- Cosine similarity for semantic matching
+- Precomputed document embeddings (offline)
+
+### ⚡ Hybrid Retrieval
+- BM25 + semantic score fusion
+- Balanced ranking (keyword + meaning)
+- Top-K candidate reranking
+
+### 🔄 Query Intelligence
+- Semantic query expansion
+- Improves recall for weak/short queries
+
+### 📦 Data Support
+- Multi-parser support (XML, CSV, extensible)
+- Automatic parser detection
+
+### ⚙️ System Design
+- Modular architecture (parser → index → ranking → API)
+- Separate document store and index
+- Metadata-driven ranking
+
+### 🌐 API + UI
+- FastAPI backend
+- REST search endpoint (`/api/v1/search`)
+- Interactive Swagger docs (`/docs`)
+- Simple web UI
 
 ---
 
 ## 🏗️ Architecture Overview
 
+
 ```bash
-Documents
+OFFLINE (Indexing)
+
+Dataset
 ↓
-Parser
+Parser (auto-detected)
 ↓
-Cleaner
+Cleaner + Tokenizer
 ↓
-Tokenizer
+Inverted Index + Title Index
 ↓
-Inverted Index
+Metadata (doc lengths, stats)
 ↓
-Disk Storage
+Embedding Generation
 ↓
-Index Reader
+Storage (JSON)
+
+
+ONLINE (Search)
+
+User Query
 ↓
-Query Parser
+Query Parsing
 ↓
-Ranking (BM25)
+Query Expansion (semantic)
 ↓
-Search Engine
+BM25 Retrieval
 ↓
-Results
+Top-K Candidates
+↓
+Semantic + BM25 Fusion
+↓
+Final Results
 ```
 
 Each component is **independent, testable, and replaceable**, making the system easy to extend with new ranking models, storage backends, or APIs.
@@ -56,19 +89,18 @@ Each component is **independent, testable, and replaceable**, making the system 
 ## 📁 Project Structure
 ```bash
 ├── src/
-│ ├── parser/
-│ ├── preprocessing/
-│ ├── indexer/
-│ ├── storage/
-│ ├── query/
-│ ├── ranking/
+│ ├── parser/ # Dataset parsers (XML, CSV, etc.)
+│ ├── preprocessing/ # Cleaning & tokenization
+│ ├── indexer/ # Inverted index logic
+│ ├── storage/ # Document store & index reader
+│ ├── ranking/ # BM25, TF-IDF
+│ ├── semantic/ # Embeddings, reranker, query expansion
+│ ├── query/ # Search engine core
 │ └── utils/
-├── scripts/
-│ ├── build_index.py
-│ └── run_search.py
-├── tests/
-├── data/ # ignored (raw dumps, index files)
-├── logs/ # ignored (runtime logs)
+├── api/ # FastAPI backend
+├── scripts/ # Indexing & CLI tools
+├── data/ # (ignored) raw + index files
+├── logs/
 ├── requirements.txt
 └── README.md
 ```
@@ -108,21 +140,18 @@ this generates:
 ```bash
 data/index/
 ├── inverted_index.json
+├── title_index.json
 ├── documents.json
-└── metadata.json
+├── metadata.json
+├── embeddings.json
 ```
 
 ### 5. Searching
 
-run the CLI search: 
+run the search api: 
 ```bash
-python -m scripts.run_search
+python -m uvicorn api.app:app --reload
 ```
-
-example: 
-search> india
-search> computer science
-search> world war
 
 ### 6. Run the tests
 ```bash
@@ -135,6 +164,17 @@ all paths and constants are centralized in:
 ```bash
  src/utils/config.py
 ```
+
+## Key Concepts Implemented
+
+Inverted Index
+BM25 Ranking
+Semantic Embeddings
+Cosine Similarity
+Hybrid Score Fusion
+Query Expansion
+Offline vs Online computation
+
 
 logs are written to: 
 ```bash
