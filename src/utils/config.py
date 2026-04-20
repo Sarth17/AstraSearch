@@ -38,3 +38,7 @@ RANKER = "bm25"  # options: "tfidf", "bm25"
 
 #param for title weighting
 TITLE_BOOST = 3.0
+
+#embeddings path
+EMBEDDINGS_PATH = INDEX_DIR / "embeddings.json"
+

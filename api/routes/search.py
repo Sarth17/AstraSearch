@@ -23,7 +23,7 @@ def search(
 
     response_results = []
 
-    for doc_id, _, score in results:
+    for doc_id, score in results:
 
         doc = engine.doc_store.get(doc_id)
 

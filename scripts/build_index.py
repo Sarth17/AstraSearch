@@ -1,6 +1,11 @@
 import argparse
 import json
 
+
+from src.semantic.embedding_model import EmbeddingModel
+from src.semantic.embedding_store import EmbeddingStore
+from src.utils.config import EMBEDDINGS_PATH
+
 from src.parser.factory import get_parser, detect_parser
 from src.parser.factory import get_parser
 from src.preprocessing.cleaner import clean_wiki_text
@@ -59,6 +64,11 @@ def main():
     title_index = InvertedIndex()
     doc_store = DocumentStore()
 
+    # --- Semantic embedding components ---
+    embedding_model = EmbeddingModel()
+    embedding_store = EmbeddingStore()
+
+
     # Get appropriate parser dynamically
     data_parser = get_parser(parser_type)
 
@@ -72,7 +82,15 @@ def main():
         index.add_document(doc_id, tokens)
         doc_store.add(doc_id, title, url, text)
 
+        # --- Generate semantic embedding ---
+        short_text = text[:512]   # first 512 characters only
+        embedding = embedding_model.encode(short_text)[0]
+        embedding_store.add(doc_id, embedding)
+
         total_docs += 1
+
+        if total_docs % 100 == 0:
+            logger.info(f"Generated embeddings for {total_docs} docs")
 
         if total_docs % 1000 == 0:
             logger.info(f"Indexed {total_docs} documents")
@@ -103,6 +121,9 @@ def main():
 
     with open(METADATA_PATH, "w") as f:
         json.dump(metadata, f)
+
+    # Save semantic embeddings
+    embedding_store.save(EMBEDDINGS_PATH)
 
     logger.info("Indexing completed successfully")
     logger.info(f"Total documents indexed: {total_docs}")

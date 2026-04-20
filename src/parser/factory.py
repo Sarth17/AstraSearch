@@ -2,6 +2,8 @@ from src.parser.wiki_parser import WikiParser
 from src.parser.text_parser import TextParser
 from src.parser.json_parser import JsonParser
 from src.parser.csv_parser import CsvParser
+from pathlib import Path
+
 
 def get_parser(parser_type):
 
@@ -24,6 +26,8 @@ import os
 
 
 def detect_parser(source_path):
+    source_path = str(Path(source_path))  # normalize path
+
 
     if os.path.isdir(source_path):
         return "text"
